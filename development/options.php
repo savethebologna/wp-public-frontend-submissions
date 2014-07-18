@@ -14,8 +14,9 @@ function create_fef_settings() {
 
 function register_fef_settings() {
 	//register our settings
-	register_setting( 'fef_settings', 'frontendfields' );
-	register_setting( 'fef_settings', 'publicuser' );
+	register_setting( 'fef_settings', 'fef_frontendfields' );
+	register_setting( 'fef_settings', 'fef_publicuser' );
+	register_setting( 'fef_settings', 'fef_fields' );
 }
 
 function fef_settings_page() {

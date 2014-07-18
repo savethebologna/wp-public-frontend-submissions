@@ -12,16 +12,27 @@
 $dir = dirname( __FILE__ );
 
 //OPTIONS
-$frontendfields = get_option('frontendfields'); //get all the fields set on the options page
-$publicuser = get_option('publicuser');
+$frontendfields = get_option('fef_frontendfields'); //get all the fields set on the options page
+$publicuser = get_option('fef_publicuser'); //get the user id that anonymous submissions will use as author
 
 require( $dir . '/options.php' ); //build admin page for options
 require( $dir . '/public-posts-manager.php' ); //Create custom post type
 
+/*----------------SHORTCODES------------------*/
+add_shortcode( 'frontendform' , 'build_frontend_form' );
+
+function build_frontend_form( $atts, $content ){
+	//Set defaults for attributes
+	extract( shortcode_atts( array(
+		'form' => 0,
+	), $atts, 'frontendform' ) );
+	
 if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['fef-submit'] )) {
 
 	if( is_user_logged_in() ) {
 		$publicuser = get_current_user_id();
+	}elseif( empty($publicuser) ){
+		$publicuser = 0;
 	}
 	
 	$post = array(
@@ -31,7 +42,7 @@ if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['fef-submit'] )) {
 		'post_status'	=> 'pending',
 		'post_author'   => $publicuser,
 		'post_category' => array('1'),
-		'post_type'	=> 'event'
+		'post_type'	=> 'frontend'
 	);
 	$new_post_id = wp_insert_post( $post );
 
@@ -80,19 +91,19 @@ if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['fef-submit'] )) {
 	__update_post_meta($the_post_id, "startdate2", $startdate);
 	__update_post_meta($the_post_id, "enddate2", $enddate);
 
-// require two files that are included in the wp-admin but not on the front end.  These give you access to some special functions below.
-require $_SERVER['DOCUMENT_ROOT'] . "/wp-admin/includes/image.php";
- 
-// required for wp_handle_upload() to upload the file
-$upload_overrides = array( 'test_form' => FALSE );
- 
-// count how many files were uploaded
-$count_files = count( $_FILES['files'] );
- 
-// load up a variable with the upload direcotry
-$uploads = wp_upload_dir();
- 
-// foreach file uploaded do the upload
+	// require two files that are included in the wp-admin but not on the front end.  These give you access to some special functions below.
+	require $_SERVER['DOCUMENT_ROOT'] . "/wp-admin/includes/image.php";
+	 
+	// required for wp_handle_upload() to upload the file
+	$upload_overrides = array( 'test_form' => FALSE );
+	 
+	// count how many files were uploaded
+	$count_files = count( $_FILES['files'] );
+	 
+	// load up a variable with the upload direcotry
+	$uploads = wp_upload_dir();
+	 
+	// foreach file uploaded do the upload
 	foreach ( range( 0, $count_files ) as $i ) {
         // create an array of the $_FILES for each file
         $file_array = array(
@@ -142,6 +153,7 @@ $uploads = wp_upload_dir();
         }
 	}
 	wp_mail($mailto,$subject,$message);
+}
 }
    
 // Do the wp_insert_post action to insert it
