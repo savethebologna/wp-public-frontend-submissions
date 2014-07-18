@@ -1,3 +1,22 @@
+<?php
+	/*
+	Plugin Name: Public Frontend Submissions for WordPress
+	Plugin URI: http://github.com/savethebologna/wp_public_submissions
+	Description: Sometimes you want to collect information from all users, even those not signed in. This is for that.
+	Author: Justin J. Goreschak
+	Version: 0.0.1
+	Author URI: http://goreschak.com
+	*/
+	
+//Cache current directory
+$dir = dirname( __FILE__ );
+
+//OPTIONS
+$frontend = get_option('frontendfields'); //get all the fields set on the options page
+
+require( $dir . '/options.php' ); //build admin page for options
+require( $dir . '/.php' ); //Create custom post type
+
 if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] )) {
 
 
@@ -119,3 +138,4 @@ $uploads = wp_upload_dir();
    
 // Do the wp_insert_post action to insert it
 do_action('wp_insert_post', 'wp_insert_post');
+?>
