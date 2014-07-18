@@ -15,59 +15,11 @@ function create_fef_settings() {
 function register_fef_settings() {
 	//register our settings
 	register_setting( 'fef_settings', 'frontendfields' );
+	register_setting( 'fef_settings', 'publicuser' );
 }
 
 function fef_settings_page() {
 ?>
-<style>
-.postbox{
-width:45%;
-margin: 0 5px;
-min-width:300px;
-display:inline-block;
-}
-.tscmod_sortable{
-width:auto;
-padding: 1em 1em;
-background-color: #eee;
-box-shadow: 0 1px 1px rgba(0,0,0,.04);
-}
-.tscmod_sortable li{
-font-size:1.3em;
-display:block;
-height:2em;
-background-color: #fff;
-text-align:center;
-line-height:2em;
-box-shadow: 0 1px 1px rgba(0,0,0,.04);
-border: 1px solid #e5e5e5;
-}
-#savestate{
-width: 100%;
-text-align: center;
-}
-#savestate .spinner{
-vertical-align:text-bottom;
-display:inline-block;
-float:none;
-}
-.hidden{
-display:none !important;
-}
-p.submit{
-text-align:center;
-padding-bottom:0;
-}
-.center{
-text-align:center;
-}
-.inside{
-text-align:left;
-}
-.js .postbox h3{
-cursor:auto;
-}
-</style>
 <div class="wrap">
 	<h2>Public Frontend Submissions</h2>
 	<div class="center">

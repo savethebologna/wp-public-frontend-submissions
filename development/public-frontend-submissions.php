@@ -12,32 +12,40 @@
 $dir = dirname( __FILE__ );
 
 //OPTIONS
-$frontend = get_option('frontendfields'); //get all the fields set on the options page
+$frontendfields = get_option('frontendfields'); //get all the fields set on the options page
+$publicuser = get_option('publicuser');
 
 require( $dir . '/options.php' ); //build admin page for options
-require( $dir . '/.php' ); //Create custom post type
+require( $dir . '/public-posts-manager.php' ); //Create custom post type
 
-if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] )) {
+if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['fef-submit'] )) {
 
+	if( is_user_logged_in() ) {
+		$publicuser = get_current_user_id();
+	}
+	
+	$post = array(
+		'post_title'	=> $title,
+		'post_content'	=> $description,
+		'tags_input'	=> $tags,
+		'post_status'	=> 'pending',
+		'post_author'   => $publicuser,
+		'post_category' => array('1'),
+		'post_type'	=> 'event'
+	);
+	$new_post_id = wp_insert_post( $post );
 
-	$title =  wp_strip_all_tags( $_POST['title'] );
-	$description = wp_strip_all_tags( $_POST['description'] );
-	$tags = $_POST['post_tags'];
-	$startdate = $_POST["startdate"];
-	$enddate = $_POST["enddate"];
-	$rawhosturl =  $_POST['hosturl'];
-	$contactemail = $_POST["contactemail"];
+	foreach( $_POST as $fullkey => $response ){ //read off each POST value
+		$response = wp_strip_all_tags( $response );
+		$pos = strpos($fullkey , 'fef'.$post_id.'-'); //keep only the ones that matter to us
+		if( $pos === 0 && $response != '' && !empty( $response ) ){
+			$field = str_replace( 'fef'.$post_name.'-', '', $fullkey ); //fef identifier
+		}
+		update_post_meta( $consultant_id, $module, $resultsarray );
+	}
 	$emailto = array( $contactemail, 'submission@ionicevents.com');
 	$subject = "Event Submitted";
 	$message = "Greetings!<p>Thank you for submitting an event to Ionic Events. You will be notified when your event is approved. Event: </p><p>Thank you,<br>The Ionic Events Team<p>";
-	
-	if( !is_user_logged_in() ) {
-	// not logged in, redirect to login form.
-	$user = '2';
-	} else {
-	// is logged in, show form here.
-	$user = get_current_user_id();
-	}
 	
 	if(strpos($hosturl, 'http://') !== false) {
 	$http = 'http://';
