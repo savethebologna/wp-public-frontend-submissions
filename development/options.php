@@ -34,7 +34,6 @@ function fef_settings_page() {
 					<p>Customize your form.</p>
 					<label>Public User:</label>
 					<select name="fef_publicuser">
-						<option value="0">Plugin Default</option>
 					<?php
 					foreach( $blogusers as $user ){
 						if($publicuser === $user->ID){ $selected = "selected"; }else{ $selected = ""; }
@@ -49,12 +48,14 @@ function fef_settings_page() {
 					if( is_array($fields) ){
 						foreach( $fields as $field_id => $field_data ){
 							$label = $field_data['label'];
-							echo "<div><label>".$label." (ID: fef_".$field_id.")</label></div>\n";
+							echo "<div class='feffield'><label>".$label." (ID: fef_".$field_id.")</label><input name='fef_fields[".$field_id."][label]' value='".$label."'></div>\n";
 						}
 					}else{
-						echo "<br>\nYou don't have any fields yet.";
-					}
+						echo "\n<p>You don't have any fields yet.</p>";
+					} //FIX BUG: if a new field is added, a blank field entry will still save as a new field.
 					?>
+					<div id="newfields"></div>
+					<p><a href="javascript:void(0)" onClick="addField();">Add a field</a></p>
 					<?php settings_fields( 'fef_settings' ); ?>
 					<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes" /></p>
 				</form>
@@ -62,5 +63,10 @@ function fef_settings_page() {
 		</div>
 	</div>
 </div>
-
+<script>
+	function addField(){
+		var fefID = jQuery('.feffield').length;
+		jQuery('#newfields').append('<div class="feffield"><label>New Field:</label><input name="fef_fields[' + fefID + '][label]" value=""></div>');
+	}
+</script>
 <?php } ?>

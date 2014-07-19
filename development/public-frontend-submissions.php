@@ -33,7 +33,7 @@ if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['fef-submit'] )) {
 	if( is_user_logged_in() ) {
 		$publicuser = get_current_user_id();
 	}elseif( empty($publicuser) ){
-		$publicuser = 1;
+		$publicuser = 0;
 	}
 	
 	$post = array(
