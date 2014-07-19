@@ -48,14 +48,20 @@ function fef_settings_page() {
 					if( is_array($fields) ){
 						foreach( $fields as $field_id => $field_data ){
 							$label = $field_data['label'];
-							echo "<div class='feffield'><label>".$label." (ID: fef_".$field_id.")</label><input name='fef_fields[".$field_id."][label]' value='".$label."'></div>\n";
+							echo "<div class='feffield'>
+								<span class='feflabel'>
+									".$label." (ID: fef_".$field_id.")
+									<a href='#' class='editField'>Change Label</a>
+								</span>
+								<input name='fef_fields[".$field_id."][label]' value='".$label."' />
+								</div>\n";
 						}
 					}else{
 						echo "\n<p>You don't have any fields yet.</p>";
 					} //FIX BUG: if a new field is added, a blank field entry will still save as a new field.
 					?>
 					<div id="newfields"></div>
-					<p><a href="javascript:void(0)" onClick="addField();">Add a field</a></p>
+					<p><a href="#" onClick="addField();">Add a field</a></p>
 					<?php settings_fields( 'fef_settings' ); ?>
 					<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes" /></p>
 				</form>
@@ -65,8 +71,14 @@ function fef_settings_page() {
 </div>
 <script>
 	function addField(){
+		event.preventDefault();
 		var fefID = jQuery('.feffield').length;
 		jQuery('#newfields').append('<div class="feffield"><label>New Field:</label><input name="fef_fields[' + fefID + '][label]" value=""></div>');
 	}
+	jQuery( ".label a.editField" ).click(function( event ) {
+		event.preventDefault();
+		jQuery( this ).parent().hide();
+		jQuery( this ).parent().siblings('input').show();
+	});
 </script>
 <?php } ?>
