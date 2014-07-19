@@ -38,7 +38,7 @@ function public_posts_manager_meta_options(){
 	if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) return $post_id;
 	
 	$custom = get_post_custom($post->ID);
-	$fields = get_option('fef_fields');
+	global $fields;
 ?>
 <style type="text/css">
 </style>

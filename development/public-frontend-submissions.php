@@ -13,7 +13,8 @@ $dir = dirname( __FILE__ );
 
 //OPTIONS
 $frontendfields = get_option('fef_frontendfields'); //get all the fields set on the options page
-$publicuser = get_option('fef_publicuser'); //get the user id that anonymous submissions will use as author
+$publicuser = (int) get_option('fef_publicuser'); //get the user id that anonymous submissions will use as author
+$fields = get_option('fef_fields');
 
 require( $dir . '/options.php' ); //build admin page for options
 require( $dir . '/public-posts-manager.php' ); //Create custom post type
@@ -32,7 +33,7 @@ if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['fef-submit'] )) {
 	if( is_user_logged_in() ) {
 		$publicuser = get_current_user_id();
 	}elseif( empty($publicuser) ){
-		$publicuser = 0;
+		$publicuser = 1;
 	}
 	
 	$post = array(

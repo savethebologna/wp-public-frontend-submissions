@@ -20,18 +20,46 @@ function register_fef_settings() {
 }
 
 function fef_settings_page() {
+	$blogusers = get_users( 'orderby=nicename' );	// Array of WP_User objects.
+	global $publicuser;
+	global $fields;
 ?>
 <div class="wrap">
 	<h2>Public Frontend Submissions</h2>
 	<div class="center">
 		<div id="tscmod_reorder" class="postbox">
 			<div class="inside">
-				<h3>Do something</h3>
-				<p>Text</p>
-				<p class="submit"><input type="button" name="submit" id="submit" class="button button-primary" value="Save Order" /></p>
+			<h3>Options</h3>
+				<form method="post" action="options.php">
+					<p>Customize your form.</p>
+					<label>Public User:</label>
+					<select name="fef_publicuser">
+						<option value="0">Plugin Default</option>
+					<?php
+					foreach( $blogusers as $user ){
+						if($publicuser === $user->ID){ $selected = "selected"; }else{ $selected = ""; }
+						$option = '<option value="' . $user->ID . '" '.$selected.'>';
+						$option .= $user->display_name;
+						$option .= '</option>';
+						echo $option;
+					}
+					?>
+					</select>
+					<?php
+					if( is_array($fields) ){
+						foreach( $fields as $field_id => $field_data ){
+							$label = $field_data['label'];
+							echo "<div><label>".$label." (ID: fef_".$field_id.")</label></div>\n";
+						}
+					}else{
+						echo "<br>\nYou don't have any fields yet.";
+					}
+					?>
+					<?php settings_fields( 'fef_settings' ); ?>
+					<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes" /></p>
+				</form>
 			</div>
 		</div>
-		<div style="display:none" id="hidden_form_elements"></div>
 	</div>
 </div>
 
