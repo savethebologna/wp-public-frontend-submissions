@@ -15,6 +15,7 @@ $dir = dirname( __FILE__ );
 $publicuser = (int) get_option('fef_publicuser'); //get the user id that anonymous submissions will use as author
 $fields = get_option('fef_fields'); //get all the fields set on the options page
 $emailoptions = get_option('fef_emailoptions'); //grab email options
+$postsettings = get_option('fef_postsettings');
 
 require( $dir . '/options.php' ); //build admin page for options
 require( $dir . '/public-posts-manager.php' ); //Create custom post type
@@ -27,7 +28,7 @@ function frontend_form_shortcode( $atts, $content ){
 	extract( shortcode_atts( array(
 		'form' => 0,
 	), $atts, 'frontendform' ) );
-	
+
 	$submitform = create_frontend_post();
 	
 	if( isset($submitform) ){
@@ -41,14 +42,14 @@ function build_frontend_form(){
 	$fields = get_option('fef_fields'); //shortcode won't use the global variable on the frontend
 	$nofields = "<p style='margin:0;padding:5px 15px 0 15px;border-left:1px solid #dedede;'>This form is empty.</p>";
 	$i = 0;
-	$form = "<form>";
+	$form = "<form method='post'>";
 	if( is_array($fields) ){
 		foreach( $fields as $field_id => $field_data ){
 			if( $field_data[active] == true ){
 				$label = $field_data[label];
 				$required = "";
 				if( $field_data[required] == true ) $required = "required";
-				$form .= "<p style='margin:0;padding:5px 15px 0 15px;border-left:1px solid #dedede;'><label for='enddate'>".$label.": </label><input size='16' name='enddate' placeholder='".$required."' ".$required." /></p>\n";
+				$form .= "<p style='margin:0;padding:5px 15px 0 15px;border-left:1px solid #dedede;'><label for='enddate'>".$label.": </label><input size='16' name='fef_".$field_id."' placeholder='".$required."' ".$required." /></p>\n";
 				$i++;
 			}
 			if( $i = 0 ) $form .= $nofields;
@@ -57,7 +58,7 @@ function build_frontend_form(){
 		$form .= $nofields;
 	}
 	$form .= wp_nonce_field( 'new-post', '_wpnonce', true, true );
-	$form .= "<p style='text-align:center;padding:10px;'><input type='submit' /></p>";
+	$form .= "<p style='text-align:center;padding:10px;'><input type='submit' name='fef-submit' /></p>";
 	$form .= "</form>";
 	return $form;
 }
@@ -65,13 +66,18 @@ function build_frontend_form(){
 function create_frontend_post(){
 
 	if( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['fef-submit'] )){
-
+		
+		$fields = get_option('fef_fields'); //shortcode won't use the global variable on the frontend
+		$emailoptions = get_option('fef_emailoptions'); //shortcode won't use the global variable on the frontend
+		$postsettings = get_option('fef_postsettings');
+		
 		//Form Validation
-		if( $emailoptions[active] === true ){
-			$posteremail = $_POST[$emailoptions['emailfield']];
-			if( $emailoptions['posteremailrequired'] === true && !filter_var( $posteremail, FILTER_VALIDATE_EMAIL ) ){
-				return "A valid email address is required.";
-			}
+		if( $emailoptions['active'] == true ){
+			$emailfield = $emailoptions['emailfield'];
+			$posteremail = $_POST[$emailfield];
+			//if( $emailoptions[posteremailrequired] == true && !filter_var( $posteremail, FILTER_VALIDATE_EMAIL ) ){
+			//	return "A valid email address is required.";
+			//}
 		}
 	
 		if( is_user_logged_in() ) {
@@ -81,7 +87,7 @@ function create_frontend_post(){
 		}
 		
 		$post = array(
-			'post_title'	=> $title,
+			'post_title'	=> $_POST[$postsettings['title']],
 			'post_content'	=> $description,
 			'tags_input'	=> $tags,
 			'post_status'	=> 'pending',
@@ -91,17 +97,17 @@ function create_frontend_post(){
 		);
 		$new_post_id = wp_insert_post( $post );
 
-		foreach( $_POST as $fullkey => $response ){ //read off each POST value
+		foreach( $_POST as $fef_field_id => $response ){ //read off each POST value
 			$response = wp_strip_all_tags( $response );
-			$pos = strpos($fullkey , 'fef'.$post_id.'-'); //keep only the ones that matter to us
-			if( $pos === 0 && $response != '' && !empty( $response ) ){
-				$field = str_replace( 'fef'.$post_name.'-', '', $fullkey ); //fef identifier
+			$pos = strpos($fef_field_id , 'fef_'); //keep only field values that matter to us
+			if( $pos === 0 ){
+				$field = str_replace( 'fef_', '', $fef_field_id ); //fef identifier
+				update_post_meta( $new_post_id, $fef_field_id, $response );
 			}
-			update_post_meta( $consultant_id, $module, $resultsarray );
 		}
 		
 		// require two files that are included in the wp-admin but not on the front end.  These give you access to some special functions below.
-		require $_SERVER['DOCUMENT_ROOT'] . "/wp-admin/includes/image.php";
+		require fef_get_WP_path() . "/wp-admin/includes/image.php";
 		 
 		// required for wp_handle_upload() to upload the file
 		$upload_overrides = array( 'test_form' => FALSE );
@@ -162,18 +168,44 @@ function create_frontend_post(){
 			}
 		}
 		
-		if($emailoptions[active] === true){
-			if( $emailoptions['sendtouser'] === true && !empty($posteremail) ) $emailto[] = $posteremail;
-			$emailto[] = $emailoptions['autoemail'];
+		if($emailoptions['active'] == true){
+			if( $emailoptions['sendtoposter'] == true && !empty($posteremail) ) $mailto[] = $posteremail;
+			if( $emailoptions['sendtoadmin'] == true && !empty($emailoptions['adminemail']) ) $mailto[] = $emailoptions['adminemail'];
 			$subject = $emailoptions['subject'];
 			$message = $emailoptions['message']; //html enabled, no variables yet though
-			wp_mail($mailto,$subject,$message);
+			add_filter( 'wp_mail_content_type', 'set_html_content_type' ); //set mail to HTML
+			function set_html_content_type() {return 'text/html';};
+			$mailstatus = wp_mail($mailto,$subject,$message);
+			remove_filter( 'wp_mail_content_type', 'set_html_content_type' ); //reset mail format
+			if( $mailstatus === false ) return "The form was submitted, but our confirmation system seems to be having issues.";
 		}
 		
-		return "success";
+		return "The form has been successfully submitted.<br>You should receive an email shortly.";
 	}
 	
 }
 // Do the wp_insert_post action to insert it
 do_action('wp_insert_post', 'wp_insert_post');
+
+function fef_get_WP_path(){ //compliments to firestats.cc
+    $base = dirname(__FILE__);
+    $path = false;
+
+    if( @file_exists(dirname(dirname($base))."/wp-load.php") ){
+        $path = dirname(dirname($base));
+    }elseif( @file_exists(dirname(dirname(dirname($base)) )."/wp-load.php")){
+        $path = dirname(dirname(dirname($base)));
+    }
+
+    if( $path != false ){
+        $path = str_replace("\\", "/", $path);
+    }
+	
+    return $path;
+}
+
+function fef_echo($var){
+	if( isset($var) ) echo $var;
+}
+
 ?>

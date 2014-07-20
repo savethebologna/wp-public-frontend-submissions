@@ -45,12 +45,15 @@ function public_posts_manager_meta_options(){
 <div class="public_posts_manager_extras">
 <?php
 	foreach( $custom as $fef_field_id => $value ){
-		$field_id = str_replace('fef_', '', $fef_field_id);
-		$label = $fields[$field_id]['label'];
-		$active = $fields[$field_id]['active'];
-		if( empty($label) || is_array($label) ) $label = $fef_field_id;
-		if( $active === false ){ $disabled = 'disabled'; }else{ $disabled = ''; }
-		echo "<div><label>".$label." (ID: ".$fef_field_id.")</label><input name='".$fef_field_id."' value='".$value[0]."' ".$disabled." /></div>\n";
+		$pos = strpos($fef_field_id , 'fef_'); //show only field values that matter to us
+		if( $pos === 0 ){
+			$field_id = str_replace('fef_', '', $fef_field_id);
+			$label = $fields[$field_id]['label'];
+			$active = $fields[$field_id]['active'];
+			if( empty($label) || is_array($label) ) $label = $fef_field_id;
+			if( $active === false ){ $disabled = 'disabled'; }else{ $disabled = ''; }
+			echo "<div><label>".$label." (ID: ".$fef_field_id.")</label><input name='".$fef_field_id."' value='".$value[0]."' ".$disabled." /></div>\n";
+		}
 	}
 ?>
 	<input type="hidden" name="prevent_delete_meta_movetotrash" id="prevent_delete_meta_movetotrash" value="<?php echo wp_create_nonce(plugin_basename(__FILE__).$post->ID); ?>" />

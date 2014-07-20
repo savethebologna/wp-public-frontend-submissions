@@ -17,12 +17,12 @@ function register_fef_settings() {
 	register_setting( 'fef_settings', 'fef_emailoptions' );
 	register_setting( 'fef_settings', 'fef_publicuser' );
 	register_setting( 'fef_settings', 'fef_fields' );
+	register_setting( 'fef_settings', 'fef_postsettings' );
 }
 
 function fef_settings_page() {
 	$blogusers = get_users( 'orderby=nicename' );	// Array of WP_User objects.
-	global $publicuser;
-	global $fields;
+	global $publicuser, $fields, $emailoptions, $postsettings;
 ?>
 <style>
 .feffield input{
@@ -72,7 +72,44 @@ function fef_settings_page() {
 					echo $option;
 				}
 				?>
-				</select>
+				</select><br><br>
+				<label>Field to Use for Post Title:</label><br>
+				<select name="fef_postsettings[title]">
+					<option value="">--Choose a Field--</option>
+				<?php
+				foreach( $fields as $field_id => $field_data ){
+					if($postsettings['title'] == "fef_" . $field_id){ $selected = "selected"; }else{ $selected = ""; }
+					$option = '<option value="fef_' . $field_id . '" '.$selected.'>';
+					$option .= $field_data[label] . " (ID: fef_" . $field_id . ")";
+					$option .= '</option>';
+					echo $option;
+				}
+				?>
+				</select><br><br>
+				<label>Email on Submission:</label><br>
+				<?php if( $emailoptions['active'] == true ){$checked = "checked";}else{$checked = "";} ?>
+				<input type="checkbox" name="fef_emailoptions[active]" value="true" <?php echo $checked ?> />Active<br>
+				<?php if( $emailoptions['sendtoposter'] == true ){$checked = "checked";}else{$checked = "";} ?>
+				<input type="checkbox" name="fef_emailoptions[sendtoposter]" value="true" <?php echo $checked ?> />Send to Poster<br>
+				<?php if( $emailoptions['sendtoadmin'] == true ){$checked = "checked";}else{$checked = "";} ?>
+				<input type="checkbox" name="fef_emailoptions[sendtoadmin]" value="true" <?php echo $checked ?> />Send to Admin<br>
+				<?php $checked = ""; ?>
+				<label>Admin Email</label><input type="email" name="fef_emailoptions[adminemail]" value="<?php fef_echo($emailoptions['adminemail']); ?>" /><br>
+				<label>Subject</label><input name="fef_emailoptions[subject]" value="<?php fef_echo($emailoptions['subject']); ?>" /><br>
+				<label>Message</label><input name="fef_emailoptions[message]" value="<?php fef_echo($emailoptions['message']); ?>" /><br>
+				<label>Poster Email Field:</label><br>
+				<select name="fef_emailoptions[emailfield]">
+					<option value="">--Choose a Field--</option>
+				<?php
+				foreach( $fields as $field_id => $field_data ){
+					if($emailoptions['emailfield'] == "fef_".$field_id){ $selected = "selected"; }else{ $selected = ""; }
+					$option = '<option value="fef_' . $field_id . '" '.$selected.'>';
+					$option .= $field_data['label'] . " (ID: fef_" . $field_id . ")";
+					$option .= '</option>';
+					echo $option;
+				}
+				?>
+				</select><br>
 			</p>
 			<?php settings_fields( 'fef_settings' ); ?>
 			<p class="submit" style="text-align:center"><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes" /></p>
