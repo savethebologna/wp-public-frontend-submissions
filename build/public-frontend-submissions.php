@@ -1,11 +1,11 @@
 <?php
 	/*
 	Plugin Name: Public Frontend Submissions for WordPress
-	Plugin URI: http://github.com/savethebologna/wp-public-frontend-submissions
+	Plugin URI: http://dev.ionicdevelopment.com/frontendforms
 	Description: Sometimes you want to collect information from all users, even those not signed in. This is for that.
 	Author: Justin J. Goreschak
 	Version: 0.1.0
-	Author URI: http://goreschak.com
+	Author URI: http://ionicdevelopment.com
 	*/
 	
 //Cache current directory
