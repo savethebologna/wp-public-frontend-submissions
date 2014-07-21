@@ -25,8 +25,13 @@ function fef_settings_page() {
 	global $publicuser, $fields, $emailoptions, $postsettings;
 ?>
 <style>
-.feffield input{
+.feffield input.changelabel{
 	display:none;
+}
+.checkbox{
+	display:inline-block;
+	width:75px;
+	text-align:center;
 }
 </style>
 <div class="wrap">
@@ -35,6 +40,7 @@ function fef_settings_page() {
 		<h2>Options</h2>
 		<form method="post" action="options.php">
 			<p><h3>Form Fields</h3>
+				<div id="fieldcolumns"><span class="checkbox">Active</span><span class="checkbox">Required</span><span>Field Label</span></div>
 				<?php
 				if( is_array($fields) ){
 					foreach( $fields as $field_id => $field_data ){
@@ -44,13 +50,13 @@ function fef_settings_page() {
 						if( $field_data[active] == true ) $active = "checked";
 						if( $field_data[required] == true ) $required = "checked";
 						echo "<div class='feffield'>
+							<span class='checkbox'><input type='checkbox' name='fef_fields[".$field_id."][active]' value='true' ".$active." /></span>
+							<span class='checkbox'><input type='checkbox' name='fef_fields[".$field_id."][required]' value='true' ".$required." /></span>
 							<span class='feflabel'>
 								".$label." (ID: fef_".$field_id.")
 								<a href='#' class='editField'>Edit Field</a>
 							</span>
-							<input type='checkbox' name='fef_fields[".$field_id."][active]' value='true' ".$active." />Active
-							<input type='checkbox' name='fef_fields[".$field_id."][required]' value='true' ".$required." />Required
-							<input name='fef_fields[".$field_id."][label]' value='".$label."' />
+							<input class='changelabel' name='fef_fields[".$field_id."][label]' value='".$label."' />
 							</div>\n";
 					}
 				}else{

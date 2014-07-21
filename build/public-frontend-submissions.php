@@ -1,10 +1,10 @@
 <?php
 	/*
 	Plugin Name: Public Frontend Submissions for WordPress
-	Plugin URI: http://github.com/savethebologna/wp_public_submissions
+	Plugin URI: http://github.com/savethebologna/wp-public-frontend-submissions
 	Description: Sometimes you want to collect information from all users, even those not signed in. This is for that.
 	Author: Justin J. Goreschak
-	Version: 0.0.1
+	Version: 0.1.0
 	Author URI: http://goreschak.com
 	*/
 	
@@ -49,7 +49,7 @@ function build_frontend_form(){
 				$label = $field_data[label];
 				$required = "";
 				if( $field_data[required] == true ) $required = "required";
-				$form .= "<p style='margin:0;padding:5px 15px 0 15px;border-left:1px solid #dedede;'><label for='enddate'>".$label.": </label><input size='16' name='fef_".$field_id."' placeholder='".$required."' ".$required." /></p>\n";
+				$form .= "<p style='margin:0;padding:5px 15px 0 15px;border-left:1px solid #dedede;'><label for='fef_".$field_id."'>".$label.": </label><br><input size='16' name='fef_".$field_id."' placeholder='".$required."' ".$required." /></p>\n";
 				$i++;
 			}
 			if( $i = 0 ) $form .= $nofields;
